@@ -3,8 +3,8 @@ import './globals.css';
 import BottomNav from '@/components/BottomNav';
 
 export const metadata: Metadata = {
-  title: 'Vino — 와인을 배워요',
-  description: '듀오링고 스타일로 배우는 기초 와인 지식',
+  title: 'Vino — Dongjin의 와인 듀오링고',
+  description: 'Dongjin이 만든 듀오링고 스타일 와인 학습 앱',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

@@ -118,7 +118,7 @@ export default function Home() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-black text-[#8B1A4A]">Vino 🍷</h1>
-          <p className="text-xs text-[#6B4050]">와인을 배워요</p>
+          <p className="text-xs text-[#6B4050]">Dongjin의 와인 듀오링고</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 bg-white rounded-full px-3 py-1.5 shadow-sm border border-[#F0E0E8]">
