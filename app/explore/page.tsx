@@ -204,6 +204,87 @@ function WineCard({ wine, onPress }: { wine: WineEntry; onPress: () => void }) {
   );
 }
 
+const GLOBE_PINS = [
+  { id: 'france',       emoji: '🇫🇷', label: '프랑스',        x: 104, y: 60 },
+  { id: 'italy',        emoji: '🇮🇹', label: '이탈리아',       x: 122, y: 74 },
+  { id: 'spain',        emoji: '🇪🇸', label: '스페인',         x: 92,  y: 72 },
+  { id: 'portugal',     emoji: '🇵🇹', label: '포르투갈',       x: 79,  y: 78 },
+  { id: 'germany',      emoji: '🇩🇪', label: '독일',           x: 117, y: 48 },
+  { id: 'austria',      emoji: '🇦🇹', label: '오스트리아',     x: 131, y: 54 },
+  { id: 'hungary',      emoji: '🇭🇺', label: '헝가리',         x: 143, y: 58 },
+  { id: 'greece',       emoji: '🇬🇷', label: '그리스',         x: 147, y: 77 },
+  { id: 'usa',          emoji: '🇺🇸', label: '미국',           x: 46,  y: 74 },
+  { id: 'argentina',    emoji: '🇦🇷', label: '아르헨티나',     x: 68,  y: 158 },
+  { id: 'chile',        emoji: '🇨🇱', label: '칠레',           x: 57,  y: 148 },
+  { id: 'south-africa', emoji: '🇿🇦', label: '남아프리카공화국', x: 132, y: 165 },
+  { id: 'australia',    emoji: '🇦🇺', label: '호주',           x: 183, y: 143 },
+  { id: 'newzealand',   emoji: '🇳🇿', label: '뉴질랜드',       x: 195, y: 152 },
+];
+
+function GlobeRegionPicker({ selected, onSelect }: { selected: string | null; onSelect: (id: string | null) => void }) {
+  const CX = 120, CY = 115, R = 98;
+  const meridianXs = Array.from({ length: 18 }, (_, i) => -90 + i * 30);
+  const parallelYs = [45, 65, 85, 105, 125, 145, 165, 185];
+  const selectedPin = GLOBE_PINS.find(p => p.id === selected);
+
+  return (
+    <div className="w-full flex flex-col items-center">
+      <svg viewBox="0 0 240 230" className="w-64 h-60" style={{ filter: 'drop-shadow(0 6px 20px rgba(26,10,46,0.5))' }}>
+        <defs>
+          <clipPath id="gc">
+            <circle cx={CX} cy={CY} r={R} />
+          </clipPath>
+          <radialGradient id="og" cx="38%" cy="32%" r="70%">
+            <stop offset="0%" stopColor="#2860A0" />
+            <stop offset="55%" stopColor="#163A68" />
+            <stop offset="100%" stopColor="#0A1E38" />
+          </radialGradient>
+          <radialGradient id="gs" cx="30%" cy="25%" r="60%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.22)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </radialGradient>
+        </defs>
+        <circle cx={CX} cy={CY} r={R} fill="url(#og)" />
+        <g clipPath="url(#gc)">
+          <g className="globe-meridian">
+            {meridianXs.map(x => (
+              <line key={x} x1={x} y1={17} x2={x} y2={213}
+                stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+            ))}
+          </g>
+          {parallelYs.map(y => {
+            const hw = Math.sqrt(Math.max(0, R * R - (y - CY) ** 2));
+            return <line key={y} x1={CX - hw} y1={y} x2={CX + hw} y2={y}
+              stroke="rgba(255,255,255,0.07)" strokeWidth="1" />;
+          })}
+        </g>
+        <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(120,180,240,0.4)" strokeWidth="1.5" />
+        <circle cx={CX} cy={CY} r={R} fill="url(#gs)" />
+        {GLOBE_PINS.map(pin => {
+          const active = selected === pin.id;
+          return (
+            <g key={pin.id} onClick={() => onSelect(active ? null : pin.id)} style={{ cursor: 'pointer' }}>
+              {active && <circle cx={pin.x} cy={pin.y} r="15" fill="rgba(139,26,74,0.35)" stroke="#C44B7A" strokeWidth="1.5" />}
+              <circle cx={pin.x} cy={pin.y} r="12"
+                fill={active ? 'rgba(139,26,74,0.85)' : 'rgba(0,0,0,0.55)'}
+                stroke={active ? '#F09AC0' : 'rgba(255,255,255,0.28)'}
+                strokeWidth="1.5" />
+              <text x={pin.x} y={pin.y + 5} textAnchor="middle" fontSize="12">{pin.emoji}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {selectedPin ? (
+        <p className="text-[#8B1A4A] font-black text-sm mt-1">
+          {selectedPin.emoji} {selectedPin.label} 와인 탐험 중
+        </p>
+      ) : (
+        <p className="text-[#9B7080] text-xs mt-1">국가를 탭해서 선택하세요</p>
+      )}
+    </div>
+  );
+}
+
 type Tab = 'region' | 'aroma' | 'all';
 
 export default function ExplorePage() {
@@ -301,48 +382,27 @@ export default function ExplorePage() {
       </div>
 
       <div className="px-4 pb-4">
-        {/* Region tab */}
-        {tab === 'region' && !selectedRegion && (
-          <div className="flex flex-col gap-3 mt-3">
-            {regionGroups.map((region) => (
-              <button
-                key={region.id}
-                onClick={() => setSelectedRegion(region.id)}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-[#F0E0E8] text-left active:scale-95 transition-transform"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-                    style={{ background: region.color + '22', border: `2px solid ${region.color}44` }}
-                  >
-                    {region.emoji}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-black text-base text-[#1A0A10]">{region.name}</div>
-                    <div className="text-xs text-[#6B4050] mt-0.5 leading-relaxed">{region.description}</div>
-                    <div className="text-xs font-bold text-[#8B1A4A] mt-1">{region.wines.length}개 와인</div>
-                  </div>
-                  <span className="text-[#6B4050] text-xl">›</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Region selected — show wines */}
-        {tab === 'region' && selectedRegion && (
+        {/* Region tab — Globe */}
+        {tab === 'region' && (
           <>
-            <button
-              onClick={() => setSelectedRegion(null)}
-              className="flex items-center gap-2 text-[#8B1A4A] font-bold text-sm mt-3 mb-3"
-            >
-              ‹ 지역 목록
-            </button>
-            <div className="flex flex-col gap-3">
-              {displayedWines.map((w) => (
-                <WineCard key={w.id} wine={w} onPress={() => setSelectedWine(w)} />
-              ))}
+            <div className="mt-3">
+              <GlobeRegionPicker selected={selectedRegion} onSelect={setSelectedRegion} />
             </div>
+            {selectedRegion && (
+              <div className="mt-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-[#6B4050] uppercase tracking-wider">
+                    {displayedWines.length}개 와인
+                  </span>
+                  <button onClick={() => setSelectedRegion(null)} className="text-[#8B1A4A] text-xs font-bold">
+                    전체 지도 ›
+                  </button>
+                </div>
+                {displayedWines.map((w) => (
+                  <WineCard key={w.id} wine={w} onPress={() => setSelectedWine(w)} />
+                ))}
+              </div>
+            )}
           </>
         )}
 

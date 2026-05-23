@@ -64,4 +64,10 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+@keyframes globe-meridian {
+  from { transform: translateX(0); }
+  to { transform: translateX(30px); }
+}
+.globe-meridian { animation: globe-meridian 8s linear infinite; }
+
 .pb-safe { padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem)); }

@@ -4,23 +4,59 @@ import { useRouter } from 'next/navigation';
 import { wineDatabase, type WineEntry } from '@/data/wineDatabase';
 import { useProgress } from '@/hooks/useProgress';
 
-const COLOR_HEX: Record<string, string> = {
-  red: '#8B1A1A', white: '#D4C060', rosé: '#E8728A',
-  sparkling: '#A0C4E8', dessert: '#D4A040', orange: '#C46A1A',
-};
-
 const CLUE_LABELS = ['색상', '아로마', '맛/질감', '힌트', '품종'];
 
-function WineGlass({ color, revealed }: { color: string; revealed: boolean }) {
+function lighten(hex: string, amount: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, (n >> 16) + amount);
+  const g = Math.min(255, ((n >> 8) & 0xff) + amount);
+  const b = Math.min(255, (n & 0xff) + amount);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
+function WineGlass({ visualColor, revealed }: { visualColor: string; revealed: boolean }) {
+  const id = `grad-${visualColor.slice(1)}`;
+  const mid = lighten(visualColor, 40);
+  const hi = lighten(visualColor, 80);
   return (
-    <svg width={120} height={180} viewBox="0 0 120 180" className="drop-shadow-lg">
-      <path d="M18,6 L102,6 Q90,62 80,84 L40,84 Q30,62 18,6 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-      <path d="M32,36 L88,36 Q82,80 78,84 L42,84 Q38,80 32,36 Z" fill={revealed ? color : '#888'} style={{ transition: 'fill 1s ease' }} />
-      <path d="M32,36 Q60,26 88,36" fill={revealed ? color + 'CC' : '#666'} />
-      <ellipse cx="57" cy="34" rx="16" ry="5" fill="rgba(255,255,255,0.25)" />
-      <rect x="57" y="84" width="6" height="54" fill="rgba(255,255,255,0.3)" rx="3" />
-      <ellipse cx="60" cy="138" rx="33" ry="10" fill="rgba(255,255,255,0.2)" />
-      <ellipse cx="60" cy="136" rx="28" ry="7" fill="rgba(255,255,255,0.15)" />
+    <svg width={120} height={190} viewBox="0 0 120 190" className="drop-shadow-xl">
+      <defs>
+        <linearGradient id={id} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={hi} stopOpacity={revealed ? 1 : 0} />
+          <stop offset="50%" stopColor={visualColor} stopOpacity={revealed ? 1 : 0} />
+          <stop offset="100%" stopColor={lighten(visualColor, -20)} stopOpacity={revealed ? 1 : 0} />
+        </linearGradient>
+        <linearGradient id={`${id}-hidden`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#555" />
+          <stop offset="100%" stopColor="#333" />
+        </linearGradient>
+      </defs>
+      {/* Bowl outline */}
+      <path d="M20,8 L100,8 Q88,65 78,86 L42,86 Q32,65 20,8 Z"
+        fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+      {/* Wine fill */}
+      <path d="M33,38 L87,38 Q81,82 78,86 L42,86 Q39,82 33,38 Z"
+        fill={revealed ? `url(#${id})` : `url(#${id}-hidden)`}
+        style={{ transition: 'fill 0.8s ease' }} />
+      {/* Highlight shimmer */}
+      {revealed && (
+        <ellipse cx="52" cy="52" rx="8" ry="14" fill="rgba(255,255,255,0.18)" transform="rotate(-20 52 52)" />
+      )}
+      {/* Surface meniscus */}
+      <path d="M33,38 Q60,30 87,38" fill="none"
+        stroke={revealed ? hi : '#666'} strokeWidth="2" opacity="0.7"
+        style={{ transition: 'stroke 0.8s ease' }} />
+      {/* Rim */}
+      <ellipse cx="60" cy="38" rx="27" ry="5" fill="rgba(255,255,255,0.12)" />
+      {/* Stem */}
+      <rect x="57" y="86" width="6" height="56" fill="rgba(255,255,255,0.25)" rx="3" />
+      {/* Base */}
+      <ellipse cx="60" cy="148" rx="32" ry="9" fill="rgba(255,255,255,0.18)" />
+      <ellipse cx="60" cy="146" rx="27" ry="6" fill="rgba(255,255,255,0.12)" />
+      {/* Question mark when hidden */}
+      {!revealed && (
+        <text x="60" y="68" textAnchor="middle" fontSize="22" fill="rgba(255,255,255,0.4)" fontWeight="bold">?</text>
+      )}
     </svg>
   );
 }
@@ -168,7 +204,6 @@ export default function GuessPage() {
 
   if (!wine) return null;
 
-  const colorHex = COLOR_HEX[wine.color] ?? '#888';
   const currentScore = SCORE_PER_CLUE[clueIndex] ?? 100;
 
   return (
@@ -189,7 +224,7 @@ export default function GuessPage() {
 
       {/* Wine glass */}
       <div className="flex flex-col items-center py-4">
-        <WineGlass color={colorHex} revealed={clueIndex >= 0} />
+        <WineGlass visualColor={wine.visualColor} revealed={clueIndex >= 1 || answered} />
         <div className="mt-2 text-white/60 text-sm text-center">
           {answered ? (
             <div>
