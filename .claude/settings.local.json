@@ -11,7 +11,10 @@
       "Bash(curl -s http://localhost:3000/lesson/1)",
       "Bash(git init *)",
       "Bash(git remote *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(ssh -T git@github.com)"
     ]
   }
 }
