@@ -17,7 +17,8 @@
       "Bash(ssh -T git@github.com)",
       "Bash(node node_modules/next/dist/bin/next build)",
       "Bash(npx tsc *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(node *)"
     ]
   }
 }

@@ -462,12 +462,35 @@ export default function ExplorePage() {
       </div>
 
       <div className="px-4 pb-4">
-        {/* Region tab — Globe */}
+        {/* Region tab — Globe + country list */}
         {tab === 'region' && (
           <>
             <div className="mt-3">
               <GlobeRegionPicker selected={selectedRegion} onSelect={setSelectedRegion} />
             </div>
+
+            {/* Country chip list */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              {regionGroups.map((rg) => {
+                const active = selectedRegion === rg.id;
+                return (
+                  <button
+                    key={rg.id}
+                    onClick={() => setSelectedRegion(active ? null : rg.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold border-2 transition-all active:scale-95"
+                    style={active
+                      ? { background: rg.color, borderColor: rg.color, color: '#fff' }
+                      : { background: '#fff', borderColor: rg.color + '55', color: rg.color }
+                    }
+                  >
+                    <span>{rg.emoji}</span>
+                    <span>{rg.name}</span>
+                    <span className="text-xs opacity-70">{rg.wines.length}</span>
+                  </button>
+                );
+              })}
+            </div>
+
             {selectedRegion && (
               <div className="mt-4 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
@@ -475,7 +498,7 @@ export default function ExplorePage() {
                     {displayedWines.length}개 와인
                   </span>
                   <button onClick={() => setSelectedRegion(null)} className="text-[#8B1A4A] text-xs font-bold">
-                    전체 지도 ›
+                    선택 해제 ×
                   </button>
                 </div>
                 {displayedWines.map((w) => (
