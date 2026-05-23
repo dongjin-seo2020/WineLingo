@@ -117,7 +117,7 @@ export default function Home() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-black text-[#8B1A4A]">Vino 🍷</h1>
+          <h1 className="text-2xl font-black text-[#8B1A4A]">VinoLingo 🍷</h1>
           <p className="text-xs text-[#6B4050]">Dongjin의 와인 듀오링고</p>
         </div>
         <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 {
-  "name": "Vino — 와인을 배워요",
-  "short_name": "Vino",
+  "name": "VinoLingo — 와인을 배워요",
+  "short_name": "VinoLingo",
   "description": "듀오링고 스타일로 배우는 기초 와인 지식",
   "start_url": "/",
   "display": "standalone",
