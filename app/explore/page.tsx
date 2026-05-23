@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { wineDatabase, regionGroups, aromaCategories, DIFFICULTY_INFO, type WineEntry, type Difficulty } from '@/data/wineDatabase';
 
 const COLOR_MAP: Record<string, string> = {
@@ -204,72 +204,152 @@ function WineCard({ wine, onPress }: { wine: WineEntry; onPress: () => void }) {
   );
 }
 
+// Country pins on globe (SVG viewBox 0 0 240 230, globe center 120,115 r=98)
 const GLOBE_PINS = [
-  { id: 'france',       emoji: '🇫🇷', label: '프랑스',        x: 104, y: 60 },
-  { id: 'italy',        emoji: '🇮🇹', label: '이탈리아',       x: 122, y: 74 },
-  { id: 'spain',        emoji: '🇪🇸', label: '스페인',         x: 92,  y: 72 },
-  { id: 'portugal',     emoji: '🇵🇹', label: '포르투갈',       x: 79,  y: 78 },
-  { id: 'germany',      emoji: '🇩🇪', label: '독일',           x: 117, y: 48 },
-  { id: 'austria',      emoji: '🇦🇹', label: '오스트리아',     x: 131, y: 54 },
-  { id: 'hungary',      emoji: '🇭🇺', label: '헝가리',         x: 143, y: 58 },
-  { id: 'greece',       emoji: '🇬🇷', label: '그리스',         x: 147, y: 77 },
-  { id: 'usa',          emoji: '🇺🇸', label: '미국',           x: 46,  y: 74 },
-  { id: 'argentina',    emoji: '🇦🇷', label: '아르헨티나',     x: 68,  y: 158 },
-  { id: 'chile',        emoji: '🇨🇱', label: '칠레',           x: 57,  y: 148 },
-  { id: 'south-africa', emoji: '🇿🇦', label: '남아프리카공화국', x: 132, y: 165 },
-  { id: 'australia',    emoji: '🇦🇺', label: '호주',           x: 183, y: 143 },
-  { id: 'newzealand',   emoji: '🇳🇿', label: '뉴질랜드',       x: 195, y: 152 },
+  { id: 'france',       emoji: '🇫🇷', label: '프랑스',          x: 104, y: 60 },
+  { id: 'italy',        emoji: '🇮🇹', label: '이탈리아',         x: 122, y: 74 },
+  { id: 'spain',        emoji: '🇪🇸', label: '스페인',           x: 91,  y: 72 },
+  { id: 'portugal',     emoji: '🇵🇹', label: '포르투갈',         x: 78,  y: 78 },
+  { id: 'germany',      emoji: '🇩🇪', label: '독일',             x: 116, y: 48 },
+  { id: 'austria',      emoji: '🇦🇹', label: '오스트리아',       x: 130, y: 54 },
+  { id: 'hungary',      emoji: '🇭🇺', label: '헝가리',           x: 142, y: 58 },
+  { id: 'greece',       emoji: '🇬🇷', label: '그리스',           x: 148, y: 76 },
+  { id: 'georgia',      emoji: '🇬🇪', label: '조지아',           x: 162, y: 65 },
+  { id: 'usa',          emoji: '🇺🇸', label: '미국',             x: 47,  y: 74 },
+  { id: 'argentina',    emoji: '🇦🇷', label: '아르헨티나',       x: 68,  y: 158 },
+  { id: 'chile',        emoji: '🇨🇱', label: '칠레',             x: 57,  y: 148 },
+  { id: 'south-africa', emoji: '🇿🇦', label: '남아프리카공화국', x: 131, y: 165 },
+  { id: 'australia',    emoji: '🇦🇺', label: '호주',             x: 183, y: 143 },
+  { id: 'newzealand',   emoji: '🇳🇿', label: '뉴질랜드',         x: 196, y: 153 },
+];
+
+// Simplified continent paths (all within globe circle cx=120 cy=115 r=98)
+const CONTINENTS = [
+  // Europe
+  'M 100,60 L 115,55 L 130,58 L 142,63 L 146,75 L 140,83 L 126,88 L 112,87 L 103,77 Z',
+  // Africa
+  'M 110,90 L 138,87 L 150,100 L 152,122 L 145,153 L 128,165 L 114,158 L 105,142 L 104,115 L 108,95 Z',
+  // North America
+  'M 56,50 L 68,46 L 73,58 L 72,74 L 63,86 L 50,88 L 44,80 L 44,64 L 52,53 Z',
+  // South America
+  'M 55,97 L 72,93 L 80,110 L 77,134 L 66,160 L 53,165 L 43,152 L 42,132 L 50,108 Z',
+  // Australia
+  'M 168,140 L 192,137 L 200,150 L 195,162 L 177,168 L 162,158 L 162,145 Z',
+  // Asia (partial — Caucasus/Middle East visible)
+  'M 155,58 L 175,55 L 185,65 L 180,80 L 165,85 L 152,78 Z',
 ];
 
 function GlobeRegionPicker({ selected, onSelect }: { selected: string | null; onSelect: (id: string | null) => void }) {
   const CX = 120, CY = 115, R = 98;
-  const meridianXs = Array.from({ length: 18 }, (_, i) => -90 + i * 30);
-  const parallelYs = [45, 65, 85, 105, 125, 145, 165, 185];
+  const meridianRef = useRef<SVGGElement>(null);
+  const parallelYs = [50, 68, 85, 102, 120, 138, 155, 172];
+
+  // RAF-driven rotation — directly mutates SVG transform to avoid re-renders
+  useEffect(() => {
+    let offset = 0;
+    let last = performance.now();
+    let rafId: number;
+    const tick = (now: number) => {
+      offset = (offset + (now - last) * 0.004) % 30;
+      last = now;
+      meridianRef.current?.setAttribute('transform', `translate(${offset.toFixed(2)}, 0)`);
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  // Build meridian x positions: wide enough to always fill the globe during animation
+  const meridianXs = Array.from({ length: 22 }, (_, i) => -100 + i * 30);
+
   const selectedPin = GLOBE_PINS.find(p => p.id === selected);
 
   return (
     <div className="w-full flex flex-col items-center">
-      <svg viewBox="0 0 240 230" className="w-64 h-60" style={{ filter: 'drop-shadow(0 6px 20px rgba(26,10,46,0.5))' }}>
+      <svg
+        viewBox="0 0 240 230"
+        className="w-72 h-72"
+        style={{ filter: 'drop-shadow(0 8px 28px rgba(14,30,60,0.6))' }}
+      >
         <defs>
           <clipPath id="gc">
             <circle cx={CX} cy={CY} r={R} />
           </clipPath>
-          <radialGradient id="og" cx="38%" cy="32%" r="70%">
-            <stop offset="0%" stopColor="#2860A0" />
-            <stop offset="55%" stopColor="#163A68" />
-            <stop offset="100%" stopColor="#0A1E38" />
+          {/* Ocean gradient — lit from upper-left */}
+          <radialGradient id="og" cx="35%" cy="30%" r="70%">
+            <stop offset="0%"   stopColor="#4A8FCC" />
+            <stop offset="45%"  stopColor="#1D5090" />
+            <stop offset="100%" stopColor="#081830" />
           </radialGradient>
-          <radialGradient id="gs" cx="30%" cy="25%" r="60%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.22)" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          {/* Sphere highlight */}
+          <radialGradient id="sh" cx="32%" cy="26%" r="55%">
+            <stop offset="0%"   stopColor="rgba(255,255,255,0.28)" />
+            <stop offset="60%"  stopColor="rgba(255,255,255,0.04)" />
+            <stop offset="100%" stopColor="rgba(0,0,0,0.25)" />
+          </radialGradient>
+          {/* Land gradient */}
+          <radialGradient id="lg" cx="40%" cy="35%" r="70%">
+            <stop offset="0%"   stopColor="#6BAA50" />
+            <stop offset="100%" stopColor="#3D7030" />
           </radialGradient>
         </defs>
+
+        {/* Ocean base */}
         <circle cx={CX} cy={CY} r={R} fill="url(#og)" />
+
         <g clipPath="url(#gc)">
-          <g className="globe-meridian">
+          {/* Continents */}
+          {CONTINENTS.map((d, i) => (
+            <path key={i} d={d}
+              fill="url(#lg)"
+              stroke="rgba(120,180,90,0.5)"
+              strokeWidth="0.8"
+            />
+          ))}
+
+          {/* Rotating meridians */}
+          <g ref={meridianRef}>
             {meridianXs.map(x => (
               <line key={x} x1={x} y1={17} x2={x} y2={213}
-                stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+                stroke="rgba(255,255,255,0.18)" strokeWidth="0.8" />
             ))}
           </g>
+
+          {/* Static parallels */}
           {parallelYs.map(y => {
             const hw = Math.sqrt(Math.max(0, R * R - (y - CY) ** 2));
-            return <line key={y} x1={CX - hw} y1={y} x2={CX + hw} y2={y}
-              stroke="rgba(255,255,255,0.07)" strokeWidth="1" />;
+            return (
+              <line key={y}
+                x1={CX - hw} y1={y} x2={CX + hw} y2={y}
+                stroke="rgba(255,255,255,0.18)" strokeWidth="0.8"
+              />
+            );
           })}
         </g>
-        <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(120,180,240,0.4)" strokeWidth="1.5" />
-        <circle cx={CX} cy={CY} r={R} fill="url(#gs)" />
+
+        {/* Globe rim */}
+        <circle cx={CX} cy={CY} r={R}
+          fill="none" stroke="rgba(140,200,255,0.55)" strokeWidth="1.5" />
+
+        {/* Sphere lighting overlay */}
+        <circle cx={CX} cy={CY} r={R} fill="url(#sh)" clipPath="url(#gc)" />
+
+        {/* Country pins — rendered on top of globe */}
         {GLOBE_PINS.map(pin => {
           const active = selected === pin.id;
           return (
             <g key={pin.id} onClick={() => onSelect(active ? null : pin.id)} style={{ cursor: 'pointer' }}>
-              {active && <circle cx={pin.x} cy={pin.y} r="15" fill="rgba(139,26,74,0.35)" stroke="#C44B7A" strokeWidth="1.5" />}
-              <circle cx={pin.x} cy={pin.y} r="12"
-                fill={active ? 'rgba(139,26,74,0.85)' : 'rgba(0,0,0,0.55)'}
-                stroke={active ? '#F09AC0' : 'rgba(255,255,255,0.28)'}
-                strokeWidth="1.5" />
-              <text x={pin.x} y={pin.y + 5} textAnchor="middle" fontSize="12">{pin.emoji}</text>
+              {active && (
+                <circle cx={pin.x} cy={pin.y} r="17"
+                  fill="rgba(139,26,74,0.35)"
+                  stroke="#E87AB0" strokeWidth="1.5" />
+              )}
+              <circle cx={pin.x} cy={pin.y} r="13"
+                fill={active ? 'rgba(139,26,74,0.92)' : 'rgba(0,0,0,0.62)'}
+                stroke={active ? '#F5B0D0' : 'rgba(255,255,255,0.45)'}
+                strokeWidth="1.5"
+              />
+              <text x={pin.x} y={pin.y + 5} textAnchor="middle" fontSize="13">{pin.emoji}</text>
             </g>
           );
         })}

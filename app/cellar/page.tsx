@@ -189,40 +189,78 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (e: Omit<Cel
 
 function WineEntryCard({ entry, onDelete }: { entry: CellarEntry; onDelete: () => void }) {
   const [showDetail, setShowDetail] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const color = COLOR_MAP[entry.type] ?? '#888';
   const dateStr = new Date(entry.dateAdded).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
     <>
-      <button onClick={() => setShowDetail(true)} className="bg-white rounded-2xl shadow-sm border border-[#F0E0E8] overflow-hidden active:scale-95 transition-transform w-full text-left">
-        {entry.imageBase64 ? (
-          <img src={`data:image/jpeg;base64,${entry.imageBase64}`} className="w-full h-36 object-cover" alt={entry.name} />
-        ) : (
-          <div className="w-full h-24 flex items-center justify-center text-4xl" style={{ background: color + '22' }}>
-            🍷
-          </div>
-        )}
-        <div className="p-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <div className="font-black text-sm text-[#1A0A10] truncate">{entry.name}</div>
-              {entry.producer && <div className="text-xs text-[#6B4050] truncate">{entry.producer}</div>}
-              {entry.vintage && <div className="text-xs text-[#8B1A4A] font-bold">{entry.vintage}</div>}
+      <div className="relative">
+        <button
+          onClick={() => setShowDetail(true)}
+          className="bg-white rounded-2xl shadow-sm border border-[#F0E0E8] overflow-hidden active:scale-95 transition-transform w-full text-left"
+        >
+          {entry.imageBase64 ? (
+            <img src={`data:image/jpeg;base64,${entry.imageBase64}`} className="w-full h-36 object-cover" alt={entry.name} />
+          ) : (
+            <div className="w-full h-24 flex items-center justify-center text-4xl" style={{ background: color + '22' }}>
+              🍷
             </div>
-            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <span className="text-xs font-bold text-white px-2 py-0.5 rounded-full" style={{ background: color }}>
-                {TYPE_OPTIONS.find((t) => t.value === entry.type)?.label}
-              </span>
-              <div className="flex">
-                {'🍷'.repeat(entry.rating)}
-                <span className="opacity-20">{'🍷'.repeat(5 - entry.rating)}</span>
+          )}
+          <div className="p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="font-black text-sm text-[#1A0A10] truncate">{entry.name}</div>
+                {entry.producer && <div className="text-xs text-[#6B4050] truncate">{entry.producer}</div>}
+                {entry.vintage && <div className="text-xs text-[#8B1A4A] font-bold">{entry.vintage}</div>}
+              </div>
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <span className="text-xs font-bold text-white px-2 py-0.5 rounded-full" style={{ background: color }}>
+                  {TYPE_OPTIONS.find((t) => t.value === entry.type)?.label}
+                </span>
+                <div className="flex">
+                  {'🍷'.repeat(entry.rating)}
+                  <span className="opacity-20">{'🍷'.repeat(5 - entry.rating)}</span>
+                </div>
               </div>
             </div>
+            {entry.region && <div className="text-xs text-[#6B4050] mt-1">📍 {entry.region}</div>}
+            <div className="text-xs text-[#9B8090] mt-1">{dateStr}</div>
           </div>
-          {entry.region && <div className="text-xs text-[#6B4050] mt-1">📍 {entry.region}</div>}
-          <div className="text-xs text-[#9B8090] mt-1">{dateStr}</div>
-        </div>
-      </button>
+        </button>
+
+        {/* Trash button */}
+        {!confirming && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setConfirming(true); }}
+            className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center text-white/90 active:scale-90 transition-transform"
+            aria-label="삭제"
+          >
+            🗑️
+          </button>
+        )}
+
+        {/* Delete confirmation overlay */}
+        {confirming && (
+          <div className="absolute inset-0 bg-black/70 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 z-10">
+            <p className="text-white font-black text-sm text-center">정말 삭제할까요?</p>
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={() => setConfirming(false)}
+                className="flex-1 bg-white/20 text-white font-bold py-2 rounded-xl text-sm active:bg-white/30"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => { onDelete(); setConfirming(false); }}
+                className="flex-1 bg-red-500 text-white font-bold py-2 rounded-xl text-sm active:bg-red-600"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {showDetail && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end" onClick={() => setShowDetail(false)}>
@@ -259,9 +297,11 @@ function WineEntryCard({ entry, onDelete }: { entry: CellarEntry; onDelete: () =
                   <p className="text-sm text-[#1A0A10] leading-relaxed">{entry.notes}</p>
                 </div>
               )}
-              <button onClick={() => { onDelete(); setShowDetail(false); }}
-                className="w-full py-3 rounded-2xl border-2 border-red-200 text-red-400 text-sm font-bold mt-2">
-                삭제하기
+              <button
+                onClick={() => { onDelete(); setShowDetail(false); }}
+                className="w-full py-3 rounded-2xl bg-red-50 border-2 border-red-200 text-red-500 text-sm font-black mt-2 active:bg-red-100"
+              >
+                🗑️ 삭제하기
               </button>
             </div>
           </div>

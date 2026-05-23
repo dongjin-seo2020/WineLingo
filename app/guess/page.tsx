@@ -224,7 +224,7 @@ export default function GuessPage() {
 
       {/* Wine glass */}
       <div className="flex flex-col items-center py-4">
-        <WineGlass visualColor={wine.visualColor} revealed={clueIndex >= 1 || answered} />
+        <WineGlass visualColor={wine.visualColor} revealed={true} />
         <div className="mt-2 text-white/60 text-sm text-center">
           {answered ? (
             <div>
