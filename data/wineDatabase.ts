@@ -2,6 +2,15 @@ export type WineColor = 'red' | 'white' | 'rosé' | 'sparkling' | 'dessert' | 'o
 export type Body = 'light' | 'medium-light' | 'medium' | 'medium-full' | 'full';
 export type Level = 'low' | 'medium-low' | 'medium' | 'medium-high' | 'high';
 
+export type Difficulty = 1 | 2 | 3 | 4;
+
+export const DIFFICULTY_INFO: Record<Difficulty, { label: string; emoji: string; color: string; bg: string; desc: string }> = {
+  1: { label: '입문', emoji: '🟢', color: '#1A7A1A', bg: '#E8F5E8', desc: '과일향 중심, 마시기 편한 와인' },
+  2: { label: '중급', emoji: '🟡', color: '#7A6A00', bg: '#FFF8DC', desc: '개성 있고 지역 특색이 뚜렷한 와인' },
+  3: { label: '심화', emoji: '🔴', color: '#8B1A1A', bg: '#FFE8E8', desc: '복잡하고 구조감 있는 와인' },
+  4: { label: '전문가', emoji: '⚫', color: '#1A0A10', bg: '#F0E8F0', desc: '테루아·빈티지·생산자 지식이 필요한 와인' },
+};
+
 export interface WineEntry {
   id: string;
   name: string;
@@ -25,6 +34,7 @@ export interface WineEntry {
   description: string;
   funFact: string;
   priceRange: 1 | 2 | 3 | 4;
+  difficulty: Difficulty;
   clues: {
     visual: string;
     aroma: string;
@@ -63,6 +73,7 @@ export const wineDatabase: WineEntry[] = [
     description: '보르도 좌안 메독의 그랜드 크뤼 와인. 카베르네 소비뇽이 주축으로 강한 타닌과 블랙 과일 향이 특징이에요. 수십 년의 숙성 가능성을 지닌 와인 세계의 아이콘.',
     funFact: '1855년 나폴레옹 3세가 만든 보르도 5대 샤토 분류 시스템은 160년이 지난 지금도 그대로 유효해요!',
     priceRange: 4,
+    difficulty: 3,
     clues: {
       visual: '진한 루비-가넷색, 거의 불투명할 정도의 깊은 색',
       aroma: '블랙커런트, 삼나무, 블랙베리, 제비꽃, 가죽 향',
@@ -98,6 +109,7 @@ export const wineDatabase: WineEntry[] = [
     description: '메를로가 지배하는 보르도 우안. 좌안보다 부드럽고 과일향이 풍부해요. Château Pétrus는 세계에서 가장 비싼 와인 중 하나.',
     funFact: 'Château Pétrus는 100% 메를로 단일 품종으로 만들어 병당 수천만 원에 달해요!',
     priceRange: 4,
+    difficulty: 3,
     clues: {
       visual: '루비-가넷, 자주빛 테두리',
       aroma: '자두, 블랙체리, 초콜릿, 모카, 제비꽃',
@@ -133,6 +145,7 @@ export const wineDatabase: WineEntry[] = [
     description: '피노 누아의 성지. 같은 밭이라도 생산자에 따라 완전히 다른 와인이 돼요. 테루아를 가장 잘 표현하는 품종으로 꼽혀요.',
     funFact: 'DRC(도멘 드 라 로마네 콩티)의 그랜드 크뤼는 병당 수백만~수억 원으로 세계에서 가장 비싼 와인이에요!',
     priceRange: 3,
+    difficulty: 4,
     clues: {
       visual: '밝은 루비-가넷, 투명하고 맑은 색',
       aroma: '체리, 라즈베리, 장미, 흙, 버섯 향',
@@ -167,6 +180,7 @@ export const wineDatabase: WineEntry[] = [
     description: '오크 숙성으로 버터와 크림 향이 가득한 부르고뉴 화이트. 미네랄과 산도가 살아있어 풍부하면서도 우아해요.',
     funFact: '부르고뉴 화이트는 전 세계 Chardonnay의 기준점으로 여겨져요. 다른 나라 와인 메이커들이 목표로 하는 스타일이에요.',
     priceRange: 3,
+    difficulty: 3,
     clues: {
       visual: '황금빛, 연한 앰버 빛 테두리',
       aroma: '버터, 크림, 헤이즐넛, 레몬, 토스트 향',
@@ -201,6 +215,7 @@ export const wineDatabase: WineEntry[] = [
     description: '오크를 거의 쓰지 않아 순수한 미네랄과 산도가 살아있어요. 굴과의 페어링으로 전설적인 명성을 가진 화이트.',
     funFact: '샤블리의 토양은 1억 5천만 년 전 바다 생물 화석이 쌓인 석회질 점토예요. 그래서 굴 같은 미네랄 향이 나와요!',
     priceRange: 2,
+    difficulty: 2,
     clues: {
       visual: '연한 황금-녹색, 매우 밝고 투명',
       aroma: '레몬, 그린 애플, 굴 껍데기, 분필, 젖은 돌 향',
@@ -236,6 +251,7 @@ export const wineDatabase: WineEntry[] = [
     description: '시라의 고향 북부 론에서 만드는 세계 최고의 시라 와인 중 하나. 후추, 타르, 훈연 향이 폭발적으로 나와요.',
     funFact: '에르미타주 언덕은 폭이 2km도 안 되는 좁은 화강암 언덕이지만, 세계에서 가장 위대한 와인을 만들어요.',
     priceRange: 4,
+    difficulty: 4,
     clues: {
       visual: '매우 짙은 인크 같은 자주-보라색',
       aroma: '블랙베리, 흑후추, 훈연, 타르, 제비꽃 향',
@@ -271,6 +287,7 @@ export const wineDatabase: WineEntry[] = [
     description: '남프랑스의 태양을 담은 와인. 그르나슈 중심의 블렌딩으로 풍부한 과일향과 프로방스 허브향이 특징이에요.',
     funFact: '와인 이름은 "교황의 새 성"이라는 뜻. 14세기 교황이 아비뇽으로 이주했을 때 이 지역 와인을 사랑해서 이름이 붙었어요.',
     priceRange: 3,
+    difficulty: 3,
     clues: {
       visual: '루비-가넷, 오렌지빛 테두리 (숙성 시)',
       aroma: '체리, 라즈베리, 허브, 라벤더, 흑후추, 가죽',
@@ -305,6 +322,7 @@ export const wineDatabase: WineEntry[] = [
     description: '샤르도네 100%로만 만드는 샴페인. 가장 우아하고 섬세한 스타일로 레몬, 미네랄, 크림 향이 완벽하게 조화를 이뤄요.',
     funFact: '블랑 드 블랑은 "흰 포도로 만든 하얀 와인"이라는 뜻이에요.',
     priceRange: 4,
+    difficulty: 3,
     clues: {
       visual: '매우 연한 황금색, 미세한 거품이 지속적으로 올라옴',
       aroma: '레몬, 그린 애플, 브리오슈, 크림, 미네랄 향',
@@ -339,6 +357,7 @@ export const wineDatabase: WineEntry[] = [
     description: '소비뇽 블랑의 우아한 버전. 뉴질랜드보다 절제되고 미네랄이 강해요. 염소 치즈(쉐브르)와의 페어링이 최고예요.',
     funFact: '루아르 강 상류의 부싯돌(시렉스) 토양에서 나오는 독특한 "연기" 같은 미네랄 향이 상세르를 특별하게 만들어요.',
     priceRange: 2,
+    difficulty: 2,
     clues: {
       visual: '연한 황금-녹색, 밝고 생동감 있는 색',
       aroma: '자몽, 라임, 허브, 부싯돌, 연기 같은 미네랄',
@@ -373,6 +392,7 @@ export const wineDatabase: WineEntry[] = [
     description: '와인계에서 가장 향이 강렬한 품종 중 하나. 장미, 리치, 향신료 향이 폭발적으로 나와요. 알자스는 독일과 국경을 맞댄 프랑스 지역이에요.',
     funFact: '게뷔르츠(Gewürz)는 독일어로 "향신료"라는 뜻이에요. 이름처럼 강렬한 향을 자랑해요.',
     priceRange: 2,
+    difficulty: 2,
     clues: {
       visual: '황금색, 알코올 높아 점성 있음',
       aroma: '리치, 장미, 꿀, 생강, 향수처럼 강렬한 향',
@@ -410,6 +430,7 @@ export const wineDatabase: WineEntry[] = [
     description: '이탈리아의 왕. 네비올로의 높은 산도와 타닌은 처음엔 거칠지만 숙성 후 트러플, 타르, 장미 향으로 변신해요.',
     funFact: '바롤로는 법적으로 최소 5년(리제르바는 8년) 숙성해야 판매할 수 있어요!',
     priceRange: 4,
+    difficulty: 4,
     clues: {
       visual: '가넷-오렌지, 투명한 루비색 (숙성 시 오렌지 빛)',
       aroma: '체리, 타르, 장미, 트러플, 가죽 향',
@@ -445,6 +466,7 @@ export const wineDatabase: WineEntry[] = [
     description: '바롤로와 함께 이탈리아 최고 레드. 100년 이상 보존 가능한 몇 안 되는 와인 중 하나예요.',
     funFact: '비온디-산티 가문이 19세기에 이 와인을 만들어 세상에 알렸어요. 100년이 넘은 빈티지가 여전히 음용 가능해요.',
     priceRange: 4,
+    difficulty: 4,
     clues: {
       visual: '루비-가넷, 오렌지빛 가장자리',
       aroma: '블랙체리, 담배, 가죽, 향신료, 흙 향',
@@ -480,6 +502,7 @@ export const wineDatabase: WineEntry[] = [
     description: '이탈리아 음식과 찰떡궁합인 토스카나의 심장. 검은 수탉(갈로 네로) 로고가 상징이에요.',
     funFact: '키안티 클라시코의 검은 수탉 로고는 13세기 시에나와 피렌체 사이의 영토 분쟁에서 유래했어요!',
     priceRange: 2,
+    difficulty: 2,
     clues: {
       visual: '루비-가넷, 중간 농도의 색',
       aroma: '체리, 허브, 토마토, 가죽, 흙 향',
@@ -515,6 +538,7 @@ export const wineDatabase: WineEntry[] = [
     description: '말린 포도로 만드는 특별한 와인. 포도를 4개월 건조 후 발효해 당분을 알코올로 완전히 변환시켜요. 풍미가 농축되어 있어요.',
     funFact: '"아마로네"는 이탈리아어로 "매우 쓴"이라는 뜻. 달콤할 것 같지만 완전히 드라이해요!',
     priceRange: 3,
+    difficulty: 3,
     clues: {
       visual: '매우 짙은 가넷-보라색, 불투명한 느낌',
       aroma: '건자두, 초콜릿, 커피, 담배, 향신료 향',
@@ -549,6 +573,7 @@ export const wineDatabase: WineEntry[] = [
     description: '이탈리아의 사랑받는 스파클링. 샴페인보다 가볍고 과일향이 더 직관적이에요. 아페리티보(식전주)로 최고!',
     funFact: '스프리츠(Spritz)의 베이스가 바로 프로세코예요. 아페롤 스프리츠 = 아페롤 + 프로세코 + 탄산수',
     priceRange: 1,
+    difficulty: 1,
     clues: {
       visual: '연한 황금색, 큰 거품',
       aroma: '복숭아, 살구, 사과, 흰 꽃, 아몬드',
@@ -586,6 +611,7 @@ export const wineDatabase: WineEntry[] = [
     description: '스페인 와인의 자존심. 아메리칸 오크 숙성으로 코코넛, 바닐라 향이 특징. 리제르바는 최소 3년 숙성.',
     funFact: '리오하는 아메리칸 오크를 많이 써요. 유럽 오크와 달리 코코넛, 딜 같은 독특한 향을 내요!',
     priceRange: 2,
+    difficulty: 2,
     clues: {
       visual: '루비-가넷, 오렌지빛 테두리 (숙성 시)',
       aroma: '체리, 바닐라, 코코넛, 가죽, 담배',
@@ -621,6 +647,7 @@ export const wineDatabase: WineEntry[] = [
     description: '까만 점판암(리코렐라) 토양에서 자라는 극한 조건의 포도. 강렬하고 미네랄이 풍부한 스페인의 새로운 아이콘.',
     funFact: '프리오라트는 1990년대까지 거의 잊혀진 산지였어요. 알바로 팔라시오스 등이 부활시켜 지금은 세계 최고가 와인 중 하나예요!',
     priceRange: 3,
+    difficulty: 3,
     clues: {
       visual: '매우 짙은 보라-인크 색, 불투명',
       aroma: '블랙베리, 슬레이트 미네랄, 커피, 초콜릿, 감초',
@@ -657,6 +684,7 @@ export const wineDatabase: WineEntry[] = [
     description: '세계에서 가장 위대한 화이트 포도 중 하나. 낮은 알코올(8-9%)에도 복잡성은 최고. 수십 년 숙성 후 꿀+페트롤 향으로 변신해요.',
     funFact: '모젤 리슬링은 50년 이상 숙성된 것도 마실 수 있어요! 페트롤(휘발유) 향은 결함이 아닌 최고 숙성의 징표예요.',
     priceRange: 2,
+    difficulty: 3,
     clues: {
       visual: '매우 연한 황금-녹색, 거의 물처럼 투명',
       aroma: '라임, 복숭아, 슬레이트, 꿀, (숙성 후 페트롤 향)',
@@ -694,6 +722,7 @@ export const wineDatabase: WineEntry[] = [
     description: '신세계 카베르네의 기준점. 보르도보다 과일향이 풍부하고 바닐라, 민트 느낌이 강해요. 1976년 파리의 심판에서 세계를 놀라게 했어요.',
     funFact: '1976년 "파리의 심판"에서 나파 와인이 프랑스 최고 와인을 블라인드 테이스팅으로 이겼어요. 이 사건이 신세계 와인의 신호탄이었어요!',
     priceRange: 3,
+    difficulty: 2,
     clues: {
       visual: '매우 짙은 루비-보라색, 불투명',
       aroma: '블랙커런트, 블랙베리, 바닐라, 삼나무, 민트향',
@@ -729,6 +758,7 @@ export const wineDatabase: WineEntry[] = [
     description: '부르고뉴와 가장 가까운 신세계 피노 누아. 더 과일향이 풍부하지만 부르고뉴의 우아함도 있어요.',
     funFact: '오리건은 부르고뉴와 같은 위도에 위치해 있어요. 그래서 피노 누아 재배에 최적의 기후를 가져요!',
     priceRange: 2,
+    difficulty: 2,
     clues: {
       visual: '밝은 루비, 가넷, 가볍고 투명한 색',
       aroma: '딸기, 라즈베리, 흙, 버섯, 장미 향',
@@ -766,6 +796,7 @@ export const wineDatabase: WineEntry[] = [
     description: '100년 넘은 고목 포도나무에서 나오는 진하고 강렬한 쉬라즈. 잼 같은 과일향과 초콜릿, 바닐라 향이 가득해요.',
     funFact: 'Penfolds Grange는 병당 수백만 원을 호가하는 호주 와인의 아이콘. 1951년 첫 빈티지 이후 매년 투자가치로도 주목받아요!',
     priceRange: 2,
+    difficulty: 1,
     clues: {
       visual: '매우 짙은 보라-검정색, 거의 불투명',
       aroma: '블루베리 잼, 자두 잼, 초콜릿, 바닐라, 훈연 향',
@@ -802,6 +833,7 @@ export const wineDatabase: WineEntry[] = [
     description: '세계에서 가장 인기 있는 소비뇽 블랑 스타일. 열대과일과 허브의 폭발적인 조합. Cloudy Bay가 세계에 알렸어요.',
     funFact: '말보로는 1980년대까지 거의 무명이었어요. 클라우디 베이가 1985년 첫 빈티지를 내놓으면서 세계를 사로잡았어요!',
     priceRange: 1,
+    difficulty: 1,
     clues: {
       visual: '매우 연한 황금-녹색',
       aroma: '패션프루트, 라임, 자몽, 풀, 허브 향 (매우 강렬)',
@@ -839,6 +871,7 @@ export const wineDatabase: WineEntry[] = [
     description: '고도 1000m 이상의 안데스 기슭에서 자라는 말벡. 프랑스 원산이지만 아르헨티나에서 꽃을 피웠어요.',
     funFact: '말벡은 원래 보르도 블렌드의 보조 품종이었어요. 유럽에서 거의 사라졌지만 아르헨티나에서 세계적 품종이 됐어요!',
     priceRange: 1,
+    difficulty: 1,
     clues: {
       visual: '짙은 자주빛-인크색',
       aroma: '자두, 블루베리, 제비꽃, 초콜릿, 바닐라 향',
@@ -876,6 +909,7 @@ export const wineDatabase: WineEntry[] = [
     description: '칠레의 정체성 품종. 19세기 보르도에서 건너왔지만 필록세라로 유럽에서 사라져 칠레만의 유산이 됐어요.',
     funFact: '1990년대까지 칠레인들도 카르메네르를 메를로인 줄 알았어요! DNA 검사 후에야 다른 품종임이 밝혀졌어요.',
     priceRange: 1,
+    difficulty: 1,
     clues: {
       visual: '짙은 루비-보라색',
       aroma: '자두, 초콜릿, 향신료, 커피, 살짝 피망 느낌',
@@ -912,6 +946,7 @@ export const wineDatabase: WineEntry[] = [
     description: '로제의 롤모델. 연한 살몬-핑크색에 드라이하고 우아해요. 프로방스의 태양과 바다를 담은 와인.',
     funFact: '브래드 피트와 안젤리나 졸리가 소유한 미라발(Miraval) 와인이 바로 프로방스 로제예요!',
     priceRange: 2,
+    difficulty: 1,
     clues: {
       visual: '매우 연한 살몬-핑크, 거의 투명한 핑크',
       aroma: '딸기, 복숭아, 장미, 미네랄, 허브 향',
@@ -948,6 +983,7 @@ export const wineDatabase: WineEntry[] = [
     description: '보트리티스 곰팡이(귀부 현상)로 만드는 세계 최고의 스위트 와인. Château d\'Yquem은 유일한 그랑 프리미에 크뤼 수페리에.',
     funFact: '귀부 포도는 기계로 수확할 수 없어요. 일일이 손으로 골라 여러 번 밭을 돌아야 해서 생산량이 극도로 적어요!',
     priceRange: 4,
+    difficulty: 4,
     clues: {
       visual: '황금-앰버색, 짙고 점성 있는 색',
       aroma: '살구 잼, 꿀, 마멀레이드, 사프란, 바닐라 향',

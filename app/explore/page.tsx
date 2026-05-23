@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { wineDatabase, regionGroups, aromaCategories, type WineEntry } from '@/data/wineDatabase';
+import { wineDatabase, regionGroups, aromaCategories, DIFFICULTY_INFO, type WineEntry, type Difficulty } from '@/data/wineDatabase';
 
 const COLOR_MAP: Record<string, string> = {
   red: '#8B1A1A',
@@ -50,7 +50,7 @@ function WineDetailModal({ wine, onClose }: { wine: WineEntry; onClose: () => vo
             </div>
             <button onClick={onClose} className="text-white/80 text-2xl ml-3 mt-1">✕</button>
           </div>
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
             <span className="bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">
               {BODY_LABEL[wine.body]}
             </span>
@@ -61,6 +61,11 @@ function WineDetailModal({ wine, onClose }: { wine: WineEntry; onClose: () => vo
             )}
             <span className="bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full">
               산도: {LEVEL_LABEL[wine.acidity]}
+            </span>
+            <span className="bg-white/90 text-xs font-bold px-2.5 py-1 rounded-full"
+              style={{ color: DIFFICULTY_INFO[wine.difficulty].color }}
+            >
+              {DIFFICULTY_INFO[wine.difficulty].emoji} {DIFFICULTY_INFO[wine.difficulty].label}
             </span>
           </div>
         </div>
@@ -183,6 +188,12 @@ function WineCard({ wine, onPress }: { wine: WineEntry; onPress: () => void }) {
                 {g}
               </span>
             ))}
+            <span
+              className="text-xs font-bold px-2 py-0.5 rounded-full"
+              style={{ color: DIFFICULTY_INFO[wine.difficulty].color, background: DIFFICULTY_INFO[wine.difficulty].bg }}
+            >
+              {DIFFICULTY_INFO[wine.difficulty].emoji} {DIFFICULTY_INFO[wine.difficulty].label}
+            </span>
           </div>
         </div>
         <span className="text-[#6B4050] text-lg">›</span>
@@ -199,6 +210,7 @@ export default function ExplorePage() {
   const [selectedAroma, setSelectedAroma] = useState<string | null>(null);
   const [selectedWine, setSelectedWine] = useState<WineEntry | null>(null);
   const [search, setSearch] = useState('');
+  const [difficultyFilter, setDifficultyFilter] = useState<Difficulty | null>(null);
 
   const displayedWines = (() => {
     let wines = wineDatabase;
@@ -209,6 +221,9 @@ export default function ExplorePage() {
     if (tab === 'aroma' && selectedAroma) {
       const cat = aromaCategories.find((a) => a.id === selectedAroma);
       wines = cat ? wines.filter((w) => cat.wines.includes(w.id)) : wines;
+    }
+    if (difficultyFilter !== null) {
+      wines = wines.filter((w) => w.difficulty === difficultyFilter);
     }
     if (search) {
       const q = search.toLowerCase();
@@ -252,6 +267,34 @@ export default function ExplorePage() {
               {label}
             </button>
           ))}
+        </div>
+        {/* Difficulty filter */}
+        <div className="flex gap-2 mt-2 overflow-x-auto no-scrollbar pb-1">
+          <button
+            onClick={() => setDifficultyFilter(null)}
+            className={`flex-shrink-0 py-1.5 px-3 rounded-xl text-xs font-black transition-all ${
+              difficultyFilter === null ? 'bg-[#1A0A10] text-white' : 'bg-white text-[#6B4050] border border-[#E8D0DC]'
+            }`}
+          >
+            전체 난이도
+          </button>
+          {([1, 2, 3, 4] as Difficulty[]).map((d) => {
+            const info = DIFFICULTY_INFO[d];
+            return (
+              <button
+                key={d}
+                onClick={() => setDifficultyFilter(difficultyFilter === d ? null : d)}
+                className="flex-shrink-0 py-1.5 px-3 rounded-xl text-xs font-black transition-all border"
+                style={{
+                  background: difficultyFilter === d ? info.color : info.bg,
+                  color: difficultyFilter === d ? '#fff' : info.color,
+                  borderColor: info.color + '44',
+                }}
+              >
+                {info.emoji} {info.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
