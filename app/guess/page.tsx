@@ -190,9 +190,12 @@ export default function GuessPage() {
       {/* Wine glass */}
       <div className="flex flex-col items-center py-4">
         <WineGlass color={colorHex} revealed={clueIndex >= 0} />
-        <div className="mt-2 text-white/60 text-sm">
+        <div className="mt-2 text-white/60 text-sm text-center">
           {answered ? (
-            <span className="text-[#D4A017] font-black">{wine.nameKo}</span>
+            <div>
+              <span className="text-[#D4A017] font-black">{wine.nameKo}</span>
+              <div className="text-white/40 text-xs italic mt-0.5">{wine.name}</div>
+            </div>
           ) : (
             `힌트 ${clueIndex + 1}/${clues.length} · 정답 시 ${currentScore}점`
           )}
@@ -240,6 +243,7 @@ export default function GuessPage() {
             </div>
             <div className="text-white/70 text-sm">
               정답: <span className="font-bold text-white">{wine.nameKo}</span>
+              <span className="text-white/50 italic text-xs ml-1">({wine.name})</span>
             </div>
             <div className="text-white/50 text-xs mt-1">{wine.region} · {wine.grapes.join(', ')}</div>
           </div>

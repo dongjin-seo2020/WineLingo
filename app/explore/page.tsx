@@ -46,7 +46,8 @@ function WineDetailModal({ wine, onClose }: { wine: WineEntry; onClose: () => vo
                 <span className="text-white/80 text-xs">{COLOR_LABEL[wine.color]}</span>
               </div>
               <h2 className="text-white font-black text-xl leading-tight">{wine.nameKo}</h2>
-              <p className="text-white/70 text-sm mt-0.5">{wine.subRegion}</p>
+              <p className="text-white/80 text-sm italic mt-0.5">{wine.name}</p>
+              <p className="text-white/60 text-xs mt-0.5">{wine.subRegion}</p>
             </div>
             <button onClick={onClose} className="text-white/80 text-2xl ml-3 mt-1">✕</button>
           </div>
@@ -178,6 +179,7 @@ function WineCard({ wine, onPress }: { wine: WineEntry; onPress: () => void }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-black text-sm text-[#1A0A10] leading-tight truncate">{wine.nameKo}</div>
+          <div className="text-xs text-[#9B7080] italic truncate">{wine.name}</div>
           <div className="text-xs text-[#6B4050] mt-0.5">{wine.subRegion}</div>
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: accentColor }}>
